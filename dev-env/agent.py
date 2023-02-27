@@ -13,7 +13,7 @@ from firebase_admin import credentials, firestore
 from game import SnakeGame, SnakeSimulation
 from engine import GeneticNN, Population
 
-cred = credentials.Certificate("snake-ai-9b1b7-firebase-adminsdk-scuwc-8917f4bd3e.json")
+cred = credentials.Certificate(None)
 firebase_admin.initialize_app(cred)
 db = firestore.client()
 
