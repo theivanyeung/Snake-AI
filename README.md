@@ -31,7 +31,7 @@
 ### To test the model
   1. Clone the repo
   2. `cd` into the ai-test folder
-  3. run `python model.py`
+  3. run `python model.py` or `python3 model.py`
   4. Enter the text from `parameter.txt`
   
 ---
@@ -40,7 +40,8 @@
 ```
 Genetic Algorithm
  - 500 models per generation
- - 20 models are choosen randomly each generation for repopulating (Those with higher fitness scores have higher chances)
+ - 20 models are choosen randomly each generation for repopulating 
+   (Those with higher fitness scores have higher chances)
  - Single-point crossover
  - Gaussian mutation
   + Mutation rate: 0.1
