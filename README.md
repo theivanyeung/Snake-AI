@@ -9,7 +9,7 @@
 ---
 
 ### How the model and training environment were developed.
-  1. Neural network class was initialized with pytorch. Followed a layer (32, 20, 12, 4)
+  1. Neural network class was initialized with pytorch. Followed a layer pattern (32, 20, 12, 4)
   2. Population class was created to initialized the hundreds of neural networks each generation.
         + Includes crossover function to spawn new and improved neural networks created from crossing the parameters of choosen elite models from the previous generation.
         + Includes mutate function to introduce mutations for exploration. (Mutation rate defaulted at 0.05 for a desired exploration/exploitation ratio)
@@ -37,6 +37,7 @@
 ---
 
 ### Technicalities
+![Frame 9](https://user-images.githubusercontent.com/58407773/221779128-80c004b3-2c95-48c9-9fc4-401dadd2cd2a.png)
 ```
 Genetic Algorithm
  - 500 models per generation
@@ -98,4 +99,17 @@ DNN Architecture
 **Fitness function**
 ```python
 f(steps, score) = steps + (2**score + score**2.1 * 500) - (score**1.2 * (0.25 * steps)**1.3)
+```
+
+---
+
+You can also play the game by `cd`'ing into the playable-game folder and running either `python game.py` or `python3 game.py`.   
+Edit the game using these self variables:
+```python
+self.board_width = 11
+self.board_height = 11
+self.y = 6
+self.apple_x = 8
+self.snake_head_x = 4
+self.fps = 30
 ```
