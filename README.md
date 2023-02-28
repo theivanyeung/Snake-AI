@@ -31,7 +31,7 @@
 ### To test the model
   1. Clone the repo
   2. `cd` into the ai-test folder
-  3. run `python model.py`
+  3. run `python model.py` or `python3 model.py`
   4. Enter the text from `parameter.txt`
   
 ---
