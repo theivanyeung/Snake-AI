@@ -30,7 +30,9 @@ class Population:
         self.hidden_size2 = hidden_size2
         self.output_size = output_size
         self.models = None
-        self.mutation_rate = 0.05
+        self.mutation_rate = 0.1
+        self.mean_deviation = 0
+        self.standard_deviation = 0.1
 
     def get_models(self):
         return self.models
@@ -48,28 +50,45 @@ class Population:
         model.fc2.bias.data = weights['fc2.bias'].clone().detach()
         model.fc3.weight.data = weights['fc3.weight'].clone().detach()
         model.fc3.bias.data = weights['fc3.bias'].clone().detach()
-
-    # Uniform crossover technique
-    def crossover(self, parent1, parent2):
-        child = GeneticNN(self.input_size, self.hidden_size1, self.hidden_size2, self.output_size)
-        for param1, param2, param_child in zip(parent1.parameters(), parent2.parameters(), child.parameters()):
-            mask = torch.rand(param1.size()) > 0.5
-            param_child.data.copy_(mask * param1.data + ~mask * param2.data)
-        return child
     
-    # Random mutation
+    # Single-point crossover
+    def crossover(self, parent1, parent2):
+        child1 = GeneticNN(parent1.input_size, parent1.hidden_size1, parent1.hidden_size2, parent1.output_size)
+        child2 = GeneticNN(parent2.input_size, parent2.hidden_size1, parent2.hidden_size2, parent2.output_size)
+        point = random.randint(0, parent1.fc1.weight.data.size(1))
+        child1.fc1.weight.data[:, :point] = parent1.fc1.weight.data[:, :point]
+        child1.fc1.weight.data[:, point:] = parent2.fc1.weight.data[:, point:]
+        child2.fc1.weight.data[:, :point] = parent2.fc1.weight.data[:, :point]
+        child2.fc1.weight.data[:, point:] = parent1.fc1.weight.data[:, point:]
+
+        point = random.randint(0, parent1.fc2.weight.data.size(1))
+        child1.fc2.weight.data[:, :point] = parent1.fc2.weight.data[:, :point]
+        child1.fc2.weight.data[:, point:] = parent2.fc2.weight.data[:, point:]
+        child2.fc2.weight.data[:, :point] = parent2.fc2.weight.data[:, :point]
+        child2.fc2.weight.data[:, point:] = parent1.fc2.weight.data[:, point:]
+
+        point = random.randint(0, parent1.fc3.weight.data.size(1))
+        child1.fc3.weight.data[:, :point] = parent1.fc3.weight.data[:, :point]
+        child1.fc3.weight.data[:, point:] = parent2.fc3.weight.data[:, point:]
+        child2.fc3.weight.data[:, :point] = parent2.fc3.weight.data[:, :point]
+        child2.fc3.weight.data[:, point:] = parent1.fc3.weight.data[:, point:]
+
+        return child1, child2
+    
+    # Gaussian mutation
     def mutate(self, model):
         for param in model.parameters():
-            if random.random() < self.mutation_rate:
-                param.data += torch.randn(param.size()) * 0.1
-        return model
-        
+            if random.uniform(0, 1) < self.mutation_rate:
+                param.data.normal_(self.mean_deviation, self.standard_deviation)
+                
     def genetic_algorithm(self, parents, population_size):
-        population = []
-        for i in range(population_size):
-            parent1 = random.choice(parents)
-            parent2 = random.choice(parents)
-            child = self.crossover(parent1, parent2)
-            child = self.mutate(child)
-            population.append(child)
-        return population
+        children = []
+        for i in range(int(population_size / 2)):
+            parent1, parent2 = random.sample(parents, 2)
+            child1, child2 = self.crossover(parent1, parent2)
+            self.mutate(child1)
+            self.mutate(child2)
+            children.append(child1)
+            children.append(child2)
+            
+        return children
