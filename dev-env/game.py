@@ -34,14 +34,15 @@ class SnakeGame:
 
         # universial positions
         self.y = 38
-        self.apple_x = 65
         self.snake_head_x = 10
 
         # Set the initial position and direction of the snake
         self.snake_segments = [(self.snake_head_x, self.y), (self.snake_head_x - 1, self.y), (self.snake_head_x - 2, self.y), (self.snake_head_x - 3, self.y)]
 
         # Set the initial position of the apple
-        self.apple_position = (self.apple_x, self.y)
+        apple_x = random.randint(0, self.board_width - 1)
+        apple_y = random.randint(0, self.board_height - 1)
+        self.apple_position = (apple_x, apple_y)
 
         # Initialize Pygame
         pygame.init()
@@ -63,7 +64,7 @@ class SnakeGame:
         self.hunger = 100
         self.steps = 0
 
-        self.fps = 100
+        self.fps = 30
 
         # Set the initial state
 
@@ -299,7 +300,9 @@ class SnakeGame:
         self.snake_direction = "right"
 
         # Set the initial position of the apple
-        self.apple_position = (self.apple_x, self.y)
+        apple_x = random.randint(0, self.board_width - 1)
+        apple_y = random.randint(0, self.board_height - 1)
+        self.apple_position = (apple_x, apple_y)
 
         # Set the initial score and game over status
         self.score = 0
@@ -328,19 +331,20 @@ class SnakeSimulation:
         self.grid_cell_height = self.segment_height + self.segment_margin
 
         # Set the size of the game board
-        self.board_width = 11
-        self.board_height = 11
+        self.board_width = 75
+        self.board_height = 75
 
         # universial positions
-        self.y = 6
-        self.apple_x = 8
-        self.snake_head_x = 4
+        self.y = 38
+        self.snake_head_x = 10
 
         # Set the initial position and direction of the snake
         self.snake_segments = [(self.snake_head_x, self.y), (self.snake_head_x - 1, self.y), (self.snake_head_x - 2, self.y), (self.snake_head_x - 3, self.y)]
 
         # Set the initial position of the apple
-        self.apple_position = (self.apple_x, self.y)
+        apple_x = random.randint(0, self.board_width - 1)
+        apple_y = random.randint(0, self.board_height - 1)
+        self.apple_position = (apple_x, apple_y)
 
         # Set the initial score and game over status
         self.score = 0
@@ -349,7 +353,7 @@ class SnakeSimulation:
         self.hunger = 100
         self.steps = 0
 
-        self.fps = 30
+        self.fps = 100
 
         # Set the initial state
 
@@ -555,7 +559,9 @@ class SnakeSimulation:
         self.snake_direction = "right"
 
         # Set the initial position of the apple
-        self.apple_position = (self.apple_x, self.y)
+        apple_x = random.randint(0, self.board_width - 1)
+        apple_y = random.randint(0, self.board_height - 1)
+        self.apple_position = (apple_x, apple_y)
 
         # Set the initial score and game over status
         self.score = 0

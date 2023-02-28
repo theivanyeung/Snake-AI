@@ -22,6 +22,14 @@ class GeneticNN(torch.nn.Module):
         x = torch.sigmoid(self.fc3(x))
         return x
     
+    def clone(self):
+        new_model = GeneticNN(self.input_size, self.hidden_size1, self.hidden_size2, self.output_size)
+        new_model.load_state_dict(self.state_dict())
+        return new_model
+    
+    def __len__(self):
+        return sum(p.numel() for p in self.parameters())
+    
 class Population:
     def __init__(self, size, input_size, hidden_size1, hidden_size2, output_size):
         self.size = size
@@ -33,6 +41,8 @@ class Population:
         self.mutation_rate = 0.1
         self.mean_deviation = 0
         self.standard_deviation = 0.1
+        self.crossover_scalar = 0.5
+        self.eta = 15
 
     def get_models(self):
         return self.models
@@ -51,44 +61,77 @@ class Population:
         model.fc3.weight.data = weights['fc3.weight'].clone().detach()
         model.fc3.bias.data = weights['fc3.bias'].clone().detach()
     
-    # Single-point crossover
-    def crossover(self, parent1, parent2):
-        child1 = GeneticNN(parent1.input_size, parent1.hidden_size1, parent1.hidden_size2, parent1.output_size)
-        child2 = GeneticNN(parent2.input_size, parent2.hidden_size1, parent2.hidden_size2, parent2.output_size)
-        point = random.randint(0, parent1.fc1.weight.data.size(1))
-        child1.fc1.weight.data[:, :point] = parent1.fc1.weight.data[:, :point]
-        child1.fc1.weight.data[:, point:] = parent2.fc1.weight.data[:, point:]
-        child2.fc1.weight.data[:, :point] = parent2.fc1.weight.data[:, :point]
-        child2.fc1.weight.data[:, point:] = parent1.fc1.weight.data[:, point:]
+    # Simulated binary crossover
+    def simulated_binary_crossover(self, parent1, parent2):
+        child1, child2 = parent1.clone(), parent2.clone()
 
-        point = random.randint(0, parent1.fc2.weight.data.size(1))
-        child1.fc2.weight.data[:, :point] = parent1.fc2.weight.data[:, :point]
-        child1.fc2.weight.data[:, point:] = parent2.fc2.weight.data[:, point:]
-        child2.fc2.weight.data[:, :point] = parent2.fc2.weight.data[:, :point]
-        child2.fc2.weight.data[:, point:] = parent1.fc2.weight.data[:, point:]
+        # Generate random numbers
+        u = random.random()
+        if u <= 0.5:
+            beta = (2*u)**(1/(self.eta+1))
+        else:
+            beta = (1/(2*(1-u)))**(1/(self.eta+1))
 
-        point = random.randint(0, parent1.fc3.weight.data.size(1))
-        child1.fc3.weight.data[:, :point] = parent1.fc3.weight.data[:, :point]
-        child1.fc3.weight.data[:, point:] = parent2.fc3.weight.data[:, point:]
-        child2.fc3.weight.data[:, :point] = parent2.fc3.weight.data[:, :point]
-        child2.fc3.weight.data[:, point:] = parent1.fc3.weight.data[:, point:]
+        # Calculate children weights
+        w1, w2 = child1.state_dict(), child2.state_dict()
+        for k in w1.keys():
+            w1[k] = beta * w1[k] + (1 - beta) * w2[k]
+            w2[k] = beta * w2[k] + (1 - beta) * w1[k]
+
+        # Update children weights
+        child1.load_state_dict(w1)
+        child2.load_state_dict(w2)
+
+        return child1, child2
+
+    # Single-point binary crossover
+    def single_point_binary_crossover(self, parent1, parent2):
+        child1, child2 = parent1.clone(), parent2.clone()
+
+        # Generate random crossover point
+        crossover_point = random.randint(1, len(parent1)-1)
+
+        # Swap weights from the crossover point
+        w1, w2 = child1.state_dict(), child2.state_dict()
+        for k in w1.keys():
+            if k.startswith('fc'):
+                w1[k][:crossover_point] = w2[k][:crossover_point].clone()
+                w2[k][:crossover_point] = w1[k][:crossover_point].clone()
+
+        # Update children weights
+        child1.load_state_dict(w1)
+        child2.load_state_dict(w2)
 
         return child1, child2
     
     # Gaussian mutation
     def mutate(self, model):
-        for param in model.parameters():
-            if random.uniform(0, 1) < self.mutation_rate:
-                param.data.normal_(self.mean_deviation, self.standard_deviation)
+        new_model = model.clone()
+
+        # Apply mutation to weights
+        for param in new_model.parameters():
+            if random.random() < self.mutation_rate:
+                param.data += torch.randn(param.shape) * self.standard_deviation
+
+        return new_model
                 
     def genetic_algorithm(self, parents, population_size):
-        children = []
-        for i in range(int(population_size / 2)):
-            parent1, parent2 = random.sample(parents, 2)
-            child1, child2 = self.crossover(parent1, parent2)
-            self.mutate(child1)
-            self.mutate(child2)
-            children.append(child1)
-            children.append(child2)
+        
+        population = []
+        
+        for _ in range(int(population_size / 2)):
+            parent1 = random.choice(parents)
+            parent2 = random.choice(parents)
             
-        return children
+            if random.random() > 0.5:
+                child1, child2 = self.single_point_binary_crossover(parent1, parent2)
+            else:
+                child1, child2 = self.simulated_binary_crossover(parent1, parent2)
+                
+            mutated_child1 = self.mutate(child1)
+            mutated_child2 = self.mutate(child2)
+            
+            population.append(mutated_child1)
+            population.append(mutated_child2)
+
+        return population

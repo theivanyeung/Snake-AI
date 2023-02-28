@@ -27,7 +27,7 @@ class Agent:
         self.board_height = None
 
         # Population of models
-        self.population_size = 500
+        self.population_size = 50
         self.generation = 0
         self.current_models = []
         self.breeders = []
@@ -230,15 +230,14 @@ class Agent:
                 self.board_height = board_height
                 if not game_over:
                     game.clear_direction_inputs()
-
+                    
                     game.move_snake()
                     game.set_tail_direction()
 
                     game.check_collisions()
                     game.check_apple_collision()
-                
                     game.draw_distances()
-
+                    
                     game.set_clock()
             
                     direction = game.get_state()
@@ -261,16 +260,6 @@ class Agent:
                     index += 1
             
             # TODO: store in firebase
-            
-            # collection_path = "generation" + str(self.generation)
-            # for model in self.current_models:
-            #     parameters = pickle.dumps(model['model'].state_dict())
-            #     parameters = base64.b64encode(parameters).decode('utf-8')
-            #     doc_ref = db.collection(collection_path).document()
-            #     doc_ref.set({
-            #         "parameters": parameters,
-            #         "fitness": model['fitness']
-            #     })
             
             highest_fitness = max(self.current_models, key=lambda x: x['fitness'])['fitness']
             model_with_highest_fitness = [x for x in self.current_models if x['fitness'] == highest_fitness]
