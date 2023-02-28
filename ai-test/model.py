@@ -94,53 +94,36 @@ class Agent:
             if not game_over:
                 game.clear_direction_inputs()
 
-                if not has_pressed:
-                    # Clear the screen
-                    game.clear_screen()
+                # Move the snake
+                game.move_snake()
+                game.set_tail_direction()
 
-                    # Draw the snake, directions, and the apple
-                    game.draw_snake()
-                    game.draw_distances()
-                    game.draw_apple()
+                # Check for collisions
+                game.check_collisions()
+                game.check_apple_collision()
 
-                    # Display the score
-                    game.display_score()
+                # Clear the screen
+                game.clear_screen()
 
-                    # Update the screen
-                    game.update_screen()
+                # Draw the snake, directions, and the apple
+                game.draw_snake()
+                game.draw_distances()
+                game.draw_apple()
 
-                    # Set the game clock
-                    game.set_clock()
+                # Display the score
+                game.display_score()
 
-                    self.handle_direction(game, model)
-                else:
+                # Update the screen
+                game.update_screen()
 
-                    # Move the snake
-                    game.move_snake()
-                    game.set_tail_direction()
-
-                    # Check for collisions
-                    game.check_collisions()
-                    game.check_apple_collision()
-
-                    # Clear the screen
-                    game.clear_screen()
-
-                    # Draw the snake, directions, and the apple
-                    game.draw_snake()
-                    game.draw_distances()
-                    game.draw_apple()
-
-                    # Display the score
-                    game.display_score()
-
-                    # Update the screen
-                    game.update_screen()
-
-                    # Set the game clock
-                    game.set_clock()
-
-                    self.handle_direction(game, model)
+                # Set the game clock
+                game.set_clock()
+                
+                direction = game.get_state()
+                direction = self.tuple_to_tensor(direction)
+                direction = model.forward(direction)
+                direction = self.choose_direction(direction)
+                game.handle_input(direction)
             else:
                 game.reset()
                 
