@@ -40,7 +40,8 @@
 ```
 Genetic Algorithm
  - 500 models per generation
- - 20 models are choosen randomly each generation for repopulating (Those with higher fitness scores have higher chances)
+ - 20 models are choosen randomly each generation for repopulating 
+   (Those with higher fitness scores have higher chances)
  - Single-point crossover
  - Gaussian mutation
   + Mutation rate: 0.1
