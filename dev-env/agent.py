@@ -27,7 +27,7 @@ class Agent:
         self.board_height = None
 
         # Population of models
-        self.population_size = 50
+        self.population_size = 500
         self.generation = 0
         self.current_models = []
         self.breeders = []
