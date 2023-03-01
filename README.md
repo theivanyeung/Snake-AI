@@ -43,15 +43,16 @@ Genetic Algorithm
  - 500 models per generation
  - 20 models are choosen randomly each generation for repopulating 
    (Those with higher fitness scores have higher chances)
- - Single-point crossover
+ - 50/50 Simulated binary crossover, Single-point binary crossover
+  + Variation (SBC): 15
  - Gaussian mutation
   + Mutation rate: 0.1
   + Mean deviation of distribution: 0
   + Standard deviation of distribution: 0.1
   
 Training board:
- - Width: 25 blocks
- - Height: 25 blocks
+ - Width: 75 blocks
+ - Height: 75 blocks
  - Initial length: 4 blocks
  
 Testing board:
