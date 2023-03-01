@@ -1,6 +1,6 @@
 # snake-ai
 ## A deep neural network capable of winning the game "Snake".
-*Snake AI is still in training phase. `parameters.txt` represents lastest model.*
+*Snake AI is still in training phase. [`parameters.txt`](ai-test/parameters.txt) represents lastest model.*
 
 #### Using the genetic algorithm, hundreds of DNNs (deep neural networks) were created and initialized each generation with thousands of generations being trained.
 
