@@ -104,7 +104,7 @@ f(steps, score) = steps + (2**score + score**2.1 * 500) - (score**1.2 * (0.25 * 
 
 ---
 
-You can also play the game by `cd`'ing into the playable-game folder and running either `python game.py` or `python3 game.py`.   
+You can also play the [game](playable-game/game.py) by `cd`'ing into the playable-game folder and running either `python game.py` or `python3 game.py`.   
 Edit the game using these self variables:
 ```python
 self.board_width = 11
