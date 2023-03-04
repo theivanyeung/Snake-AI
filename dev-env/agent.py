@@ -114,7 +114,8 @@ class Agent:
     # TRAINING ENVIRONMENT     
 
     def fitness_equation(self, steps, score):
-        return steps + (2**score + score**2.1 * 500) - (score**1.2 * (0.25 * steps)**1.3)
+        fitness = steps + ((2**score) + (score**2.1) * 500) - ((score**1.2) * ((0.25 * steps)**1.3))
+        return max(fitness, .1)
     
     # Converting input data to tensor
 
@@ -242,6 +243,7 @@ class Agent:
             
                     direction = game.get_state()
                     direction = self.tuple_to_tensor(direction)
+                    direction = self.standardize(direction)
                     direction = models[index].forward(direction)
                     direction = self.choose_direction(direction)
                     game.handle_input(direction)
@@ -254,7 +256,7 @@ class Agent:
                         'model': models[index],
                         'fitness': fitness
                     })
-                    
+
                     game.reset()
 
                     index += 1

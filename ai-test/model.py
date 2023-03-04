@@ -58,6 +58,22 @@ class Agent:
         bools = bool1 + bool2 + bool3 + bool4
         return torch.tensor(distances + bools, dtype=torch.float32)
     
+    def standardize(self, tensor):
+        # Split the tensor into two parts
+        first_8 = tensor[:8]
+        rest_24 = tensor[8:]
+
+        # Define the max values for each neuron
+        max_values = torch.tensor([self.board_height, self.board_height, self.board_width, self.board_width] + [min(self.board_height, self.board_width)] * 4)
+
+        # Normalize the first 8 neurons by dividing by max values
+        normalized_8 = first_8 / max_values
+
+        # Combine the normalized 8 neurons with the rest of the 24 neurons using torch.cat
+        output = torch.cat((normalized_8, rest_24))
+
+        return output
+    
     def choose_direction(self, output):
         max_val, max_idx = torch.max(output, dim=0)
         return {
@@ -121,6 +137,7 @@ class Agent:
                 
                 direction = game.get_state()
                 direction = self.tuple_to_tensor(direction)
+                direction = self.standardize(direction)
                 direction = model.forward(direction)
                 direction = self.choose_direction(direction)
                 game.handle_input(direction)

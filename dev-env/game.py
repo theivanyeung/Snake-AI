@@ -8,7 +8,6 @@ class Direction:
         self.distance = distance
         self.has_apple = has_apple
         self.has_snake = has_snake
-
 class SnakeGame:
     def __init__(self):
         # Define some colors
@@ -112,6 +111,8 @@ class SnakeGame:
 
         # Add the new head of the snake to the front of the segments list
         self.snake_segments = [(head_x, head_y)] + self.snake_segments[:-1]
+        
+        self.steps += 1
 
     def set_tail_direction(self):
         # Get the position of the tail of the snake
@@ -155,7 +156,6 @@ class SnakeGame:
     def handle_step(self, direction = None):
         if (self.snake_direction != direction):
             self.hunger -= 1
-            self.steps += 1
         self.snake_direction = direction
         self.has_pressed = True
 
@@ -331,12 +331,12 @@ class SnakeSimulation:
         self.grid_cell_height = self.segment_height + self.segment_margin
 
         # Set the size of the game board
-        self.board_width = 75
-        self.board_height = 75
+        self.board_width = 25
+        self.board_height = 25
 
         # universial positions
-        self.y = 38
-        self.snake_head_x = 10
+        self.y = 13
+        self.snake_head_x = 5
 
         # Set the initial position and direction of the snake
         self.snake_segments = [(self.snake_head_x, self.y), (self.snake_head_x - 1, self.y), (self.snake_head_x - 2, self.y), (self.snake_head_x - 3, self.y)]
@@ -353,7 +353,7 @@ class SnakeSimulation:
         self.hunger = 100
         self.steps = 0
 
-        self.fps = 100
+        self.fps = 200
 
         # Set the initial state
 
@@ -388,6 +388,8 @@ class SnakeSimulation:
 
         # Add the new head of the snake to the front of the segments list
         self.snake_segments = [(head_x, head_y)] + self.snake_segments[:-1]
+        
+        self.steps += 1
 
     def set_tail_direction(self):
         # Get the position of the tail of the snake
@@ -425,7 +427,6 @@ class SnakeSimulation:
     def handle_step(self, direction):
         if (self.snake_direction != direction):
             self.hunger -= 1
-            self.steps += 1
         self.snake_direction = direction
         self.has_pressed = True
 
