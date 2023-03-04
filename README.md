@@ -1,6 +1,6 @@
 # snake-ai
 ## A deep neural network capable of winning the game "Snake".
-*Snake AI is still in training phase. `parameters.txt` represents lastest model.*
+*Snake AI is still in training phase. [`parameters.txt`](ai-test/parameters.txt) represents lastest model.*
 
 #### Using the genetic algorithm, hundreds of DNNs (deep neural networks) were created and initialized each generation with thousands of generations being trained.
 
@@ -43,15 +43,16 @@ Genetic Algorithm
  - 500 models per generation
  - 20 models are choosen randomly each generation for repopulating 
    (Those with higher fitness scores have higher chances)
- - Single-point crossover
+ - 50/50 Simulated binary crossover, Single-point binary crossover
+  + Variation (SBC): 15
  - Gaussian mutation
   + Mutation rate: 0.1
   + Mean deviation of distribution: 0
   + Standard deviation of distribution: 0.1
   
 Training board:
- - Width: 25 blocks
- - Height: 25 blocks
+ - Width: 75 blocks
+ - Height: 75 blocks
  - Initial length: 4 blocks
  
 Testing board:
@@ -103,7 +104,7 @@ f(steps, score) = steps + (2**score + score**2.1 * 500) - (score**1.2 * (0.25 * 
 
 ---
 
-You can also play the game by `cd`'ing into the playable-game folder and running either `python game.py` or `python3 game.py`.   
+You can also play the [game](playable-game/game.py) by `cd`'ing into the playable-game folder and running either `python game.py` or `python3 game.py`.   
 Edit the game using these self variables:
 ```python
 self.board_width = 11
