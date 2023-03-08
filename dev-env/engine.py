@@ -38,7 +38,7 @@ class Population:
         self.hidden_size2 = hidden_size2
         self.output_size = output_size
         self.models = None
-        self.mutation_rate = 0.1
+        self.mutation_rate = 0.01
         self.mean_deviation = 0
         self.standard_deviation = 0.1
         self.crossover_scalar = 0.5

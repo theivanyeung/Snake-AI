@@ -335,11 +335,21 @@ class SnakeSimulation:
         self.board_height = 25
 
         # universial positions
-        self.y = 13
-        self.snake_head_x = 5
+        possible_positions = [(x, y) for x in range(self.board_width - 1) for y in range(self.board_height - 1)]
+        snake_head_pos = random.choice(possible_positions)
+        snake_directions = ['up', 'down', 'left', 'right']
+        snake_direction = random.choice(snake_directions)
 
         # Set the initial position and direction of the snake
-        self.snake_segments = [(self.snake_head_x, self.y), (self.snake_head_x - 1, self.y), (self.snake_head_x - 2, self.y), (self.snake_head_x - 3, self.y)]
+        self.snake_segments = None
+        if snake_direction == 'up':
+            self.snake_segments = [snake_head_pos, (snake_head_pos[0], snake_head_pos[1] + 1), (snake_head_pos[0], snake_head_pos[1] + 2), (snake_head_pos[0], snake_head_pos[1] + 3)]
+        elif snake_direction == 'down':
+            self.snake_segments = [snake_head_pos, (snake_head_pos[0], snake_head_pos[1] - 1), (snake_head_pos[0], snake_head_pos[1] - 2), (snake_head_pos[0], snake_head_pos[1] - 3)]
+        elif snake_direction == 'left':
+            self.snake_segments = [snake_head_pos, (snake_head_pos[0] + 1, snake_head_pos[1]), (snake_head_pos[0] + 2, snake_head_pos[1]), (snake_head_pos[0] + 3, snake_head_pos[1])]
+        else: # snake_direction == 'right'
+            self.snake_segments = [snake_head_pos, (snake_head_pos[0] - 1, snake_head_pos[1]), (snake_head_pos[0] - 2, snake_head_pos[1]), (snake_head_pos[0] - 3, snake_head_pos[1])]
 
         # Set the initial position of the apple
         apple_x = random.randint(0, self.board_width - 1)
