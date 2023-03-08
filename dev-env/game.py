@@ -28,19 +28,43 @@ class SnakeGame:
         self.grid_cell_height = self.segment_height + self.segment_margin
 
         # Set the size of the game board
-        self.board_width = 75
-        self.board_height = 75
+        self.board_width = 25
+        self.board_height = 25
 
         # universial positions
-        self.y = 38
-        self.snake_head_x = 10
+        possible_positions = [(x, y) for x in range(self.board_width - 1) for y in range(self.board_height - 1)]
+        snake_head_pos = random.choice(possible_positions)
+        snake_directions = None
+        if (snake_head_pos[0] < 2):
+            snake_directions = ["up", "down", "left"]
+        elif(snake_head_pos[0] > self.board_width - 4):
+            snake_directions = ["up", "down", "right"]
+        elif(snake_head_pos[1] < 2):
+            snake_directions = ["up", "left", "right"]
+        elif(snake_head_pos[1] > self.board_height - 4):
+            snake_directions = ["down", "left", "right"]
+        else:
+            snake_directions = ["up", "down", "left", "right"]
+        self.snake_direction = random.choice(snake_directions)
 
         # Set the initial position and direction of the snake
-        self.snake_segments = [(self.snake_head_x, self.y), (self.snake_head_x - 1, self.y), (self.snake_head_x - 2, self.y), (self.snake_head_x - 3, self.y)]
+        self.snake_segments = None
+        if self.snake_direction == "up":
+            self.snake_segments = [snake_head_pos, (snake_head_pos[0], snake_head_pos[1] + 1), (snake_head_pos[0], snake_head_pos[1] + 2), (snake_head_pos[0], snake_head_pos[1] + 3)]
+        elif self.snake_direction == "down":
+            self.snake_segments = [snake_head_pos, (snake_head_pos[0], snake_head_pos[1] - 1), (snake_head_pos[0], snake_head_pos[1] - 2), (snake_head_pos[0], snake_head_pos[1] - 3)]
+        elif self.snake_direction == "left":
+            self.snake_segments = [snake_head_pos, (snake_head_pos[0] + 1, snake_head_pos[1]), (snake_head_pos[0] + 2, snake_head_pos[1]), (snake_head_pos[0] + 3, snake_head_pos[1])]
+        else:
+            self.snake_segments = [snake_head_pos, (snake_head_pos[0] - 1, snake_head_pos[1]), (snake_head_pos[0] - 2, snake_head_pos[1]), (snake_head_pos[0] - 3, snake_head_pos[1])]
 
         # Set the initial position of the apple
         apple_x = random.randint(0, self.board_width - 1)
         apple_y = random.randint(0, self.board_height - 1)
+        while (apple_x, apple_y) in self.snake_segments:
+            apple_x = random.randint(0, self.board_width - 1)
+            apple_y = random.randint(0, self.board_height - 1)
+                
         self.apple_position = (apple_x, apple_y)
 
         # Initialize Pygame
@@ -63,13 +87,20 @@ class SnakeGame:
         self.hunger = 100
         self.steps = 0
 
-        self.fps = 30
+        self.fps = 200
 
         # Set the initial state
 
         self.direction_inputs = []
-        self.snake_direction = "right"
-        self.tail_direction = "left"
+        self.tail_direction = None
+        if (self.snake_direction == "up"):
+            self.tail_direction == "down"
+        elif (self.snake_direction == "down"):
+            self.tail_direction == "up"
+        elif (self.snake_direction == "right"):
+            self.tail_direction == "left"
+        elif (self.snake_direction == "left"):
+            self.tail_direction == "right"
 
     def get_values(self):
         return self.board_width, self.board_height, self.game_over, self.has_pressed, self.score, self.steps
@@ -170,7 +201,7 @@ class SnakeGame:
         elif direction == "down" and self.snake_direction != "up":
             self.handle_step("down")
 
-    # Define a function to check for collisions with the walls and the snake's body
+    # Define a function to check for collisions with the walls and the snake"s body
     def check_collisions(self):
         # Check for collision with the walls
         head_x = self.snake_segments[0][0]
@@ -178,7 +209,7 @@ class SnakeGame:
         if head_x < 0 or head_x >= self.board_width or head_y < 0 or head_y >= self.board_height:
             self.game_over = True
 
-        # Check for collision with the snake's body
+        # Check for collision with the snake"s body
         for segment in self.snake_segments[1:]:
             if segment == self.snake_segments[0]:
                 self.game_over = True
@@ -203,7 +234,7 @@ class SnakeGame:
 
     def draw_distances(self):
         # Define the directions
-        directions = ["up", "down", "right", "left", "upleft", "upright", "downleft", "downright"]
+        directions = ["up", "upright", "right", "downright", "down", "downleft", "left", "upleft"]
 
         # Get the position of the head of the snake
         head_x = self.snake_segments[0][0]
@@ -225,25 +256,25 @@ class SnakeGame:
                 if direction == "up":
                     new_x = head_x
                     new_y = head_y - distance
-                elif direction == "down":
+                elif direction == "upright":
                     new_x = head_x
                     new_y = head_y + distance
                 elif direction == "right":
                     new_x = head_x + distance
                     new_y = head_y
-                elif direction == "left":
+                elif direction == "downright":
                     new_x = head_x - distance
                     new_y = head_y
-                elif direction == "upleft":
+                elif direction == "down":
                     new_x = head_x - distance
-                    new_y = head_y - distance
-                elif direction == "upright":
-                    new_x = head_x + distance
                     new_y = head_y - distance
                 elif direction == "downleft":
+                    new_x = head_x + distance
+                    new_y = head_y - distance
+                elif direction == "left":
                     new_x = head_x - distance
                     new_y = head_y + distance
-                elif direction == "downright":
+                elif direction == "upleft":
                     new_x = head_x + distance
                     new_y = head_y + distance
 
@@ -255,7 +286,7 @@ class SnakeGame:
                 if (new_x, new_y) == self.apple_position:
                     has_apple = True
             
-                # Stop if the new position is the snake's body
+                # Stop if the new position is the snake"s body
                 if (new_x, new_y) in self.snake_segments:
                     has_snake = True
 
@@ -265,7 +296,6 @@ class SnakeGame:
                 pygame.draw.rect(self.screen, (255, 0, 0), [x, y, 1, 1])
 
             self.direction_inputs.append(Direction(direction, distance, has_apple, has_snake))
-                    
 
     def get_state(self):
         distances = []
@@ -278,30 +308,56 @@ class SnakeGame:
             is_snake.append(distanceObj.has_snake)
 
         snake_direction = {
-            'up': [True, False, False, False],
-            'down': [False, True, False, False],
-            'right': [False, False, True, False],
-            'left': [False, False, False, True],
-        }.get(self.snake_direction, 'Invalid case')
+            "up": [True, False, False, False],
+            "right": [False, True, False, False],
+            "down": [False, False, True, False],
+            "left": [False, False, False, True],
+        }.get(self.snake_direction, "Invalid case")
 
         tail_direction = {
-            'up': [True, False, False, False],
-            'down': [False, True, False, False],
-            'right': [False, False, True, False],
-            'left': [False, False, False, True],
-        }.get(self.tail_direction, 'Invalid case')
+            "up": [True, False, False, False],
+            "right": [False, True, False, False],
+            "down": [False, False, True, False],
+            "left": [False, False, False, True],
+        }.get(self.tail_direction, "Invalid case")
 
         return distances, is_apple, is_snake, snake_direction, tail_direction
 
     def reset(self):
+        # universial positions
+        possible_positions = [(x, y) for x in range(self.board_width - 1) for y in range(self.board_height - 1)]
+        snake_head_pos = random.choice(possible_positions)
+        snake_directions = None
+        if (snake_head_pos[0] < 2):
+            snake_directions = ["up", "down", "left"]
+        elif(snake_head_pos[0] > self.board_width - 4):
+            snake_directions = ["up", "down", "right"]
+        elif(snake_head_pos[1] < 2):
+            snake_directions = ["up", "left", "right"]
+        elif(snake_head_pos[1] > self.board_height - 4):
+            snake_directions = ["down", "left", "right"]
+        else:
+            snake_directions = ["up", "down", "left", "right"]
+        self.snake_direction = random.choice(snake_directions)
+
         # Set the initial position and direction of the snake
-        self.snake_segments = [(self.snake_head_x, self.y), (self.snake_head_x - 1, self.y), (self.snake_head_x - 2, self.y), (self.snake_head_x - 3, self.y)]
-        
-        self.snake_direction = "right"
+        self.snake_segments = None
+        if self.snake_direction == "up":
+            self.snake_segments = [snake_head_pos, (snake_head_pos[0], snake_head_pos[1] + 1), (snake_head_pos[0], snake_head_pos[1] + 2), (snake_head_pos[0], snake_head_pos[1] + 3)]
+        elif self.snake_direction == "down":
+            self.snake_segments = [snake_head_pos, (snake_head_pos[0], snake_head_pos[1] - 1), (snake_head_pos[0], snake_head_pos[1] - 2), (snake_head_pos[0], snake_head_pos[1] - 3)]
+        elif self.snake_direction == "left":
+            self.snake_segments = [snake_head_pos, (snake_head_pos[0] + 1, snake_head_pos[1]), (snake_head_pos[0] + 2, snake_head_pos[1]), (snake_head_pos[0] + 3, snake_head_pos[1])]
+        else:
+            self.snake_segments = [snake_head_pos, (snake_head_pos[0] - 1, snake_head_pos[1]), (snake_head_pos[0] - 2, snake_head_pos[1]), (snake_head_pos[0] - 3, snake_head_pos[1])]
 
         # Set the initial position of the apple
         apple_x = random.randint(0, self.board_width - 1)
         apple_y = random.randint(0, self.board_height - 1)
+        while (apple_x, apple_y) in self.snake_segments:
+            apple_x = random.randint(0, self.board_width - 1)
+            apple_y = random.randint(0, self.board_height - 1)
+                
         self.apple_position = (apple_x, apple_y)
 
         # Set the initial score and game over status
@@ -337,23 +393,37 @@ class SnakeSimulation:
         # universial positions
         possible_positions = [(x, y) for x in range(self.board_width - 1) for y in range(self.board_height - 1)]
         snake_head_pos = random.choice(possible_positions)
-        snake_directions = ['up', 'down', 'left', 'right']
-        snake_direction = random.choice(snake_directions)
+        snake_directions = None
+        if (snake_head_pos[0] < 2):
+            snake_directions = ["up", "down", "left"]
+        elif(snake_head_pos[0] > self.board_width - 4):
+            snake_directions = ["up", "down", "right"]
+        elif(snake_head_pos[1] < 2):
+            snake_directions = ["up", "left", "right"]
+        elif(snake_head_pos[1] > self.board_height - 4):
+            snake_directions = ["down", "left", "right"]
+        else:
+            snake_directions = ["up", "down", "left", "right"]
+        self.snake_direction = random.choice(snake_directions)
 
         # Set the initial position and direction of the snake
         self.snake_segments = None
-        if snake_direction == 'up':
+        if self.snake_direction == "up":
             self.snake_segments = [snake_head_pos, (snake_head_pos[0], snake_head_pos[1] + 1), (snake_head_pos[0], snake_head_pos[1] + 2), (snake_head_pos[0], snake_head_pos[1] + 3)]
-        elif snake_direction == 'down':
+        elif self.snake_direction == "down":
             self.snake_segments = [snake_head_pos, (snake_head_pos[0], snake_head_pos[1] - 1), (snake_head_pos[0], snake_head_pos[1] - 2), (snake_head_pos[0], snake_head_pos[1] - 3)]
-        elif snake_direction == 'left':
+        elif self.snake_direction == "left":
             self.snake_segments = [snake_head_pos, (snake_head_pos[0] + 1, snake_head_pos[1]), (snake_head_pos[0] + 2, snake_head_pos[1]), (snake_head_pos[0] + 3, snake_head_pos[1])]
-        else: # snake_direction == 'right'
+        else:
             self.snake_segments = [snake_head_pos, (snake_head_pos[0] - 1, snake_head_pos[1]), (snake_head_pos[0] - 2, snake_head_pos[1]), (snake_head_pos[0] - 3, snake_head_pos[1])]
 
         # Set the initial position of the apple
         apple_x = random.randint(0, self.board_width - 1)
         apple_y = random.randint(0, self.board_height - 1)
+        while (apple_x, apple_y) in self.snake_segments:
+            apple_x = random.randint(0, self.board_width - 1)
+            apple_y = random.randint(0, self.board_height - 1)
+                
         self.apple_position = (apple_x, apple_y)
 
         # Set the initial score and game over status
@@ -368,8 +438,15 @@ class SnakeSimulation:
         # Set the initial state
 
         self.direction_inputs = []
-        self.snake_direction = "right"
-        self.tail_direction = "left"
+        self.tail_direction = None
+        if (self.snake_direction == "up"):
+            self.tail_direction == "down"
+        elif (self.snake_direction == "down"):
+            self.tail_direction == "up"
+        elif (self.snake_direction == "right"):
+            self.tail_direction == "left"
+        elif (self.snake_direction == "left"):
+            self.tail_direction == "right"
 
     def get_values(self):
         return self.board_width, self.board_height, self.game_over, self.has_pressed, self.score, self.steps
@@ -451,7 +528,7 @@ class SnakeSimulation:
         elif direction == "down" and self.snake_direction != "up":
             self.handle_step("down")
 
-    # Define a function to check for collisions with the walls and the snake's body
+    # Define a function to check for collisions with the walls and the snake"s body
     def check_collisions(self):
         # Check for collision with the walls
         head_x = self.snake_segments[0][0]
@@ -459,7 +536,7 @@ class SnakeSimulation:
         if head_x < 0 or head_x >= self.board_width or head_y < 0 or head_y >= self.board_height:
             self.game_over = True
 
-        # Check for collision with the snake's body
+        # Check for collision with the snake"s body
         for segment in self.snake_segments[1:]:
             if segment == self.snake_segments[0]:
                 self.game_over = True
@@ -478,7 +555,7 @@ class SnakeSimulation:
 
     def draw_distances(self):
         # Define the directions
-        directions = ["up", "down", "right", "left", "upleft", "upright", "downleft", "downright"]
+        directions = ["up", "upright", "right", "downright", "down", "downleft", "left", "upleft"]
 
         # Get the position of the head of the snake
         head_x = self.snake_segments[0][0]
@@ -500,25 +577,25 @@ class SnakeSimulation:
                 if direction == "up":
                     new_x = head_x
                     new_y = head_y - distance
-                elif direction == "down":
+                elif direction == "upright":
                     new_x = head_x
                     new_y = head_y + distance
                 elif direction == "right":
                     new_x = head_x + distance
                     new_y = head_y
-                elif direction == "left":
+                elif direction == "downright":
                     new_x = head_x - distance
                     new_y = head_y
-                elif direction == "upleft":
+                elif direction == "down":
                     new_x = head_x - distance
-                    new_y = head_y - distance
-                elif direction == "upright":
-                    new_x = head_x + distance
                     new_y = head_y - distance
                 elif direction == "downleft":
+                    new_x = head_x + distance
+                    new_y = head_y - distance
+                elif direction == "left":
                     new_x = head_x - distance
                     new_y = head_y + distance
-                elif direction == "downright":
+                elif direction == "upleft":
                     new_x = head_x + distance
                     new_y = head_y + distance
 
@@ -530,7 +607,7 @@ class SnakeSimulation:
                 if (new_x, new_y) == self.apple_position:
                     has_apple = True
             
-                # Stop if the new position is the snake's body
+                # Stop if the new position is the snake"s body
                 if (new_x, new_y) in self.snake_segments:
                     has_snake = True
 
@@ -548,30 +625,56 @@ class SnakeSimulation:
             is_snake.append(distanceObj.has_snake)
 
         snake_direction = {
-            'up': [True, False, False, False],
-            'down': [False, True, False, False],
-            'right': [False, False, True, False],
-            'left': [False, False, False, True],
-        }.get(self.snake_direction, 'Invalid case')
+            "up": [True, False, False, False],
+            "right": [False, True, False, False],
+            "down": [False, False, True, False],
+            "left": [False, False, False, True],
+        }.get(self.snake_direction, "Invalid case")
 
         tail_direction = {
-            'up': [True, False, False, False],
-            'down': [False, True, False, False],
-            'right': [False, False, True, False],
-            'left': [False, False, False, True],
-        }.get(self.tail_direction, 'Invalid case')
+            "up": [True, False, False, False],
+            "right": [False, True, False, False],
+            "down": [False, False, True, False],
+            "left": [False, False, False, True],
+        }.get(self.tail_direction, "Invalid case")
 
         return distances, is_apple, is_snake, snake_direction, tail_direction
 
     def reset(self):
+        # universial positions
+        possible_positions = [(x, y) for x in range(self.board_width - 1) for y in range(self.board_height - 1)]
+        snake_head_pos = random.choice(possible_positions)
+        snake_directions = None
+        if (snake_head_pos[0] < 2):
+            snake_directions = ["up", "down", "left"]
+        elif(snake_head_pos[0] > self.board_width - 4):
+            snake_directions = ["up", "down", "right"]
+        elif(snake_head_pos[1] < 2):
+            snake_directions = ["up", "left", "right"]
+        elif(snake_head_pos[1] > self.board_height - 4):
+            snake_directions = ["down", "left", "right"]
+        else:
+            snake_directions = ["up", "down", "left", "right"]
+        self.snake_direction = random.choice(snake_directions)
+
         # Set the initial position and direction of the snake
-        self.snake_segments = [(self.snake_head_x, self.y), (self.snake_head_x - 1, self.y), (self.snake_head_x - 2, self.y), (self.snake_head_x - 3, self.y)]
-        
-        self.snake_direction = "right"
+        self.snake_segments = None
+        if self.snake_direction == "up":
+            self.snake_segments = [snake_head_pos, (snake_head_pos[0], snake_head_pos[1] + 1), (snake_head_pos[0], snake_head_pos[1] + 2), (snake_head_pos[0], snake_head_pos[1] + 3)]
+        elif self.snake_direction == "down":
+            self.snake_segments = [snake_head_pos, (snake_head_pos[0], snake_head_pos[1] - 1), (snake_head_pos[0], snake_head_pos[1] - 2), (snake_head_pos[0], snake_head_pos[1] - 3)]
+        elif self.snake_direction == "left":
+            self.snake_segments = [snake_head_pos, (snake_head_pos[0] + 1, snake_head_pos[1]), (snake_head_pos[0] + 2, snake_head_pos[1]), (snake_head_pos[0] + 3, snake_head_pos[1])]
+        else:
+            self.snake_segments = [snake_head_pos, (snake_head_pos[0] - 1, snake_head_pos[1]), (snake_head_pos[0] - 2, snake_head_pos[1]), (snake_head_pos[0] - 3, snake_head_pos[1])]
 
         # Set the initial position of the apple
         apple_x = random.randint(0, self.board_width - 1)
         apple_y = random.randint(0, self.board_height - 1)
+        while (apple_x, apple_y) in self.snake_segments:
+            apple_x = random.randint(0, self.board_width - 1)
+            apple_y = random.randint(0, self.board_height - 1)
+                
         self.apple_position = (apple_x, apple_y)
 
         # Set the initial score and game over status

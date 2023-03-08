@@ -27,7 +27,7 @@ class Agent:
         self.board_height = None
 
         # Population of models
-        self.population_size = 500
+        self.population_size = 1000
         self.generation = 0
         self.current_models = []
         self.breeders = []
@@ -244,6 +244,7 @@ class Agent:
                     direction = game.get_state()
                     direction = self.tuple_to_tensor(direction)
                     direction = self.standardize(direction)
+                    print(direction)
                     direction = models[index].forward(direction)
                     direction = self.choose_direction(direction)
                     game.handle_input(direction)

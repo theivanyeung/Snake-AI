@@ -170,7 +170,7 @@ class SnakeGame:
         elif direction == "down" and self.snake_direction != "up":
             self.handle_step("down")
 
-    # Define a function to check for collisions with the walls and the snake's body
+    # Define a function to check for collisions with the walls and the snake"s body
     def check_collisions(self):
         # Check for collision with the walls
         head_x = self.snake_segments[0][0]
@@ -178,7 +178,7 @@ class SnakeGame:
         if head_x < 0 or head_x >= self.board_width or head_y < 0 or head_y >= self.board_height:
             self.game_over = True
 
-        # Check for collision with the snake's body
+        # Check for collision with the snake"s body
         for segment in self.snake_segments[1:]:
             if segment == self.snake_segments[0]:
                 self.game_over = True
@@ -203,7 +203,7 @@ class SnakeGame:
 
     def draw_distances(self):
         # Define the directions
-        directions = ["up", "down", "right", "left", "upleft", "upright", "downleft", "downright"]
+        directions = ["up", "upright", "right", "downright", "down", "downleft", "left", "upleft"]
 
         # Get the position of the head of the snake
         head_x = self.snake_segments[0][0]
@@ -225,25 +225,25 @@ class SnakeGame:
                 if direction == "up":
                     new_x = head_x
                     new_y = head_y - distance
-                elif direction == "down":
+                elif direction == "upright":
                     new_x = head_x
                     new_y = head_y + distance
                 elif direction == "right":
                     new_x = head_x + distance
                     new_y = head_y
-                elif direction == "left":
+                elif direction == "downright":
                     new_x = head_x - distance
                     new_y = head_y
-                elif direction == "upleft":
+                elif direction == "down":
                     new_x = head_x - distance
-                    new_y = head_y - distance
-                elif direction == "upright":
-                    new_x = head_x + distance
                     new_y = head_y - distance
                 elif direction == "downleft":
+                    new_x = head_x + distance
+                    new_y = head_y - distance
+                elif direction == "left":
                     new_x = head_x - distance
                     new_y = head_y + distance
-                elif direction == "downright":
+                elif direction == "upleft":
                     new_x = head_x + distance
                     new_y = head_y + distance
 
@@ -255,7 +255,7 @@ class SnakeGame:
                 if (new_x, new_y) == self.apple_position:
                     has_apple = True
             
-                # Stop if the new position is the snake's body
+                # Stop if the new position is the snake"s body
                 if (new_x, new_y) in self.snake_segments:
                     has_snake = True
 
@@ -278,18 +278,18 @@ class SnakeGame:
             is_snake.append(distanceObj.has_snake)
 
         snake_direction = {
-            'up': [True, False, False, False],
-            'down': [False, True, False, False],
-            'right': [False, False, True, False],
-            'left': [False, False, False, True],
-        }.get(self.snake_direction, 'Invalid case')
+            "up": [True, False, False, False],
+            "right": [False, True, False, False],
+            "down": [False, False, True, False],
+            "left": [False, False, False, True],
+        }.get(self.snake_direction, "Invalid case")
 
         tail_direction = {
-            'up': [True, False, False, False],
-            'down': [False, True, False, False],
-            'right': [False, False, True, False],
-            'left': [False, False, False, True],
-        }.get(self.tail_direction, 'Invalid case')
+            "up": [True, False, False, False],
+            "right": [False, True, False, False],
+            "down": [False, False, True, False],
+            "left": [False, False, False, True],
+        }.get(self.tail_direction, "Invalid case")
 
         return distances, is_apple, is_snake, snake_direction, tail_direction
 

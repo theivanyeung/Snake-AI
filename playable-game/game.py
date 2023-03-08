@@ -1,7 +1,6 @@
 import pygame
 import random
 import time
-
 class Direction:
     def __init__(self, direction, distance, has_apple, has_snake):
         self.direction = direction
