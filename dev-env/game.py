@@ -433,7 +433,7 @@ class SnakeSimulation:
         self.hunger = 100
         self.steps = 0
 
-        self.fps = 2
+        self.fps = 200
 
         # Set the initial state
 
