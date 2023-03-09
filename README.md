@@ -40,7 +40,7 @@
 ![Frame 9](https://user-images.githubusercontent.com/58407773/221779128-80c004b3-2c95-48c9-9fc4-401dadd2cd2a.png)
 ```
 Genetic Algorithm
- - 500 models per generation
+ - 1000 models per generation
  - 20 models are choosen randomly each generation for repopulating 
    (Those with higher fitness scores have higher chances)
  - 50/50 Simulated binary crossover, Single-point binary crossover
