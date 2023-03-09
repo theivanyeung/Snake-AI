@@ -244,7 +244,6 @@ class Agent:
             
                     direction = game.get_state()
                     direction = self.tuple_to_tensor(direction)
-                    print(direction)
                     direction = models[index].forward(direction)
                     direction = self.choose_direction(direction)
                     game.handle_input(direction)
