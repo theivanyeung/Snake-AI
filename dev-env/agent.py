@@ -211,7 +211,7 @@ class Agent:
 
         while True:
             
-            game = SnakeGame()
+            game = SnakeSimulation()
             population = Population(self.population_size, 32, 20, 12, 4)
         
             models = None
@@ -237,20 +237,8 @@ class Agent:
 
                     game.check_collisions()
                     game.check_apple_collision()
-                    
-                    # Clear the screen
-                    game.clear_screen()
 
-                    # Draw the snake, directions, and the apple
-                    game.draw_snake()
                     game.draw_distances()
-                    game.draw_apple()
-
-                    # Display the score
-                    game.display_score()
-
-                    # Update the screen
-                    game.update_screen()
                     
                     game.set_clock()
             
