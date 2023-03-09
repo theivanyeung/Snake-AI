@@ -294,18 +294,18 @@ class SnakeGame:
                 x = new_x * self.grid_cell_width + (self.segment_width // 2)
                 y = new_y * self.grid_cell_height + (self.segment_height // 2)
                 pygame.draw.rect(self.screen, (255, 0, 0), [x, y, 1, 1])
+                
+            distanceBool = distance == 1
 
-            self.direction_inputs.append(Direction(direction, distance, has_apple, has_snake))
+            self.direction_inputs.append(Direction(direction, distanceBool, has_apple, has_snake))
 
     def get_state(self):
-        distances = []
-        is_apple = []
-        is_snake = []
+        direction = []
 
         for distanceObj in self.direction_inputs:
-            distances.append(distanceObj.distance)
-            is_apple.append(distanceObj.has_apple)
-            is_snake.append(distanceObj.has_snake)
+            direction.append(distanceObj.distance)
+            direction.append(distanceObj.has_apple)
+            direction.append(distanceObj.has_snake)
 
         snake_direction = {
             "up": [True, False, False, False],
@@ -321,7 +321,7 @@ class SnakeGame:
             "left": [False, False, False, True],
         }.get(self.tail_direction, "Invalid case")
 
-        return distances, is_apple, is_snake, snake_direction, tail_direction
+        return direction, snake_direction, tail_direction
 
     def reset(self):
         # universial positions
@@ -433,7 +433,7 @@ class SnakeSimulation:
         self.hunger = 100
         self.steps = 0
 
-        self.fps = 200
+        self.fps = 2
 
         # Set the initial state
 
@@ -611,18 +611,18 @@ class SnakeSimulation:
                 if (new_x, new_y) in self.snake_segments:
                     has_snake = True
 
-            self.direction_inputs.append(Direction(direction, distance, has_apple, has_snake))
+            distanceBool = distance == 1
+
+            self.direction_inputs.append(Direction(direction, distanceBool, has_apple, has_snake))
                     
 
     def get_state(self):
-        distances = []
-        is_apple = []
-        is_snake = []
+        direction = []
 
         for distanceObj in self.direction_inputs:
-            distances.append(distanceObj.distance)
-            is_apple.append(distanceObj.has_apple)
-            is_snake.append(distanceObj.has_snake)
+            direction.append(distanceObj.distance)
+            direction.append(distanceObj.has_apple)
+            direction.append(distanceObj.has_snake)
 
         snake_direction = {
             "up": [True, False, False, False],
@@ -638,7 +638,7 @@ class SnakeSimulation:
             "left": [False, False, False, True],
         }.get(self.tail_direction, "Invalid case")
 
-        return distances, is_apple, is_snake, snake_direction, tail_direction
+        return direction, snake_direction, tail_direction
 
     def reset(self):
         # universial positions

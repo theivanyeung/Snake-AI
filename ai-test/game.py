@@ -29,12 +29,12 @@ class SnakeGame:
         self.grid_cell_height = self.segment_height + self.segment_margin
 
         # Set the size of the game board
-        self.board_width = 75
-        self.board_height = 75
+        self.board_width = 25
+        self.board_height = 25
 
         # universial positions
-        self.y = 38
-        self.snake_head_x = 10
+        self.y = 13
+        self.snake_head_x = 5
 
         # Set the initial position and direction of the snake
         self.snake_segments = [(self.snake_head_x, self.y), (self.snake_head_x - 1, self.y), (self.snake_head_x - 2, self.y), (self.snake_head_x - 3, self.y)]
@@ -61,7 +61,7 @@ class SnakeGame:
         self.score = 0
         self.game_over = False
         self.has_pressed = False
-        self.hunger = 100
+        self.hunger = 300
         self.steps = 0
 
         self.fps = 30

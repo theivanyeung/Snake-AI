@@ -52,7 +52,7 @@ class Agent:
         game = SnakeGame()
 
         model = GeneticNN(32, 24, 12, 4)
-
+        
         while True:
             # Run the game loop
             board_width, board_height, game_over, has_pressed, score, steps = game.get_values()
@@ -120,9 +120,9 @@ class Agent:
     # Converting input data to tensor
 
     def tuple_to_tensor(self, tuple):
-        distances, bool1, bool2, bool3, bool4 = tuple
-        bools = bool1 + bool2 + bool3 + bool4
-        return torch.tensor(distances + bools, dtype=torch.float32)
+        direction, snake_direction, tail_direction = tuple
+        bools = direction + snake_direction + tail_direction
+        return torch.tensor(bools, dtype=torch.float32)
 
     # standardize continuous distance data
     def standardize(self, tensor):
@@ -211,7 +211,7 @@ class Agent:
 
         while True:
             
-            game = SnakeSimulation()
+            game = SnakeGame()
             population = Population(self.population_size, 32, 20, 12, 4)
         
             models = None
@@ -237,13 +237,26 @@ class Agent:
 
                     game.check_collisions()
                     game.check_apple_collision()
+                    
+                    # Clear the screen
+                    game.clear_screen()
+
+                    # Draw the snake, directions, and the apple
+                    game.draw_snake()
                     game.draw_distances()
+                    game.draw_apple()
+
+                    # Display the score
+                    game.display_score()
+
+                    # Update the screen
+                    game.update_screen()
                     
                     game.set_clock()
             
                     direction = game.get_state()
                     direction = self.tuple_to_tensor(direction)
-                    direction = self.standardize(direction)
+                    print(direction)
                     direction = models[index].forward(direction)
                     direction = self.choose_direction(direction)
                     game.handle_input(direction)
