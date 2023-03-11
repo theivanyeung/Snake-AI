@@ -54,9 +54,9 @@ class Agent:
     # Converting input data to tensor
 
     def tuple_to_tensor(self, tuple):
-        distances, bool1, bool2, bool3, bool4 = tuple
-        bools = bool1 + bool2 + bool3 + bool4
-        return torch.tensor(distances + bools, dtype=torch.float32)
+        direction, snake_direction, tail_direction = tuple
+        bools = direction + snake_direction + tail_direction
+        return torch.tensor(bools, dtype=torch.float32)
     
     def standardize(self, tensor):
         # Split the tensor into two parts
@@ -137,7 +137,6 @@ class Agent:
                 
                 direction = game.get_state()
                 direction = self.tuple_to_tensor(direction)
-                direction = self.standardize(direction)
                 direction = model.forward(direction)
                 direction = self.choose_direction(direction)
                 game.handle_input(direction)
