@@ -9,7 +9,17 @@ import torch.nn as nn
 import torch.nn.functional as F
 import random
 
+import pygame
+
+import firebase_admin
+from firebase_admin import credentials, firestore
+
 from game import SnakeGame
+from display import SnakeDisplay
+
+cred = credentials.Certificate("snake-ai-9b1b7-firebase-adminsdk-scuwc-abe60b557f.json")
+firebase_admin.initialize_app(cred)
+db = firestore.client()
 
 class GeneticNN:
     def __init__(self, input_size, hidden_size1, hidden_size2, output_size):
@@ -142,6 +152,105 @@ class Agent:
                 game.handle_input(direction)
             else:
                 game.reset()
+
+    def run_display(self):
+        
+        count = 1800
+        fitness = None
+        start = [0, ]
+        
+        game = SnakeDisplay()
+        
+        model = GeneticNN(32, 24, 12, 4)
+        doc_model = db.collection("fittest").document("GENERATION0").get()
+        parameters = doc_model.to_dict().get("parameters")
+        fitness = doc_model.to_dict().get("fitness")
+
+        parameters = base64.b64decode(parameters)
+        parameters = pickle.loads(parameters)
+        self.set_weights(model, parameters)
+        
+        while count < 1947:   
+            # Run the game loop
+            board_width, board_height, game_over, has_pressed, score, steps = game.get_values()
+            self.board_width = board_width
+            self.board_height = board_height
+            if not game_over:
+                game.clear_direction_inputs()
+
+                # Move the snake
+                game.move_snake()
+                game.set_tail_direction()
+
+                # Check for collisions
+                game.check_collisions()
+                game.check_apple_collision()
+
+                # Clear the screen
+                game.clear_screen()
+
+                # Draw the snake, directions, and the apple
+                game.draw_snake()
+                game.draw_distances()
+                game.draw_apple()
+
+                direction = game.get_state()
+                direction = self.tuple_to_tensor(direction)
+                
+                input_activations = direction.numpy().flatten().tolist()
+                input_activations = [float(x) for x in input_activations]
+                
+                x = torch.relu(model.fc1(direction))
+                activations1 = x.detach().numpy()
+
+                x = torch.relu(model.fc2(x))
+                activations2 = x.detach().numpy()
+
+                x = torch.sigmoid(model.fc3(x))
+                activations3 = x.detach().numpy()
+            
+                layer_colors = [(235, 0, 255), (0, 224, 255), (0, 224, 255), (235, 0, 255)]
+            
+                game.draw_neural_network_visualization( model, 750, 400, layer_colors, input_activations, activations=[activations1, activations2, activations3])
+                
+                # Display the score
+                game.display_score()
+                
+                # Display the generation
+                game.display_generation(count)
+                
+                # Display the fitness
+                game.display_fitness(fitness)
+
+                # Update the screen
+                game.update_screen()
+
+                # Set the game clock
+                game.set_clock()
+                
+                direction = model.forward(direction)
+                direction = self.choose_direction(direction)
+                game.handle_input(direction)
+                
+            else:
+                game.reset()
+                
+                count += 1
+                
+                doc_model = db.collection("fittest").document("GENERATION" + str(count)).get()
+                parameters = doc_model.to_dict().get("parameters")
+                fitness = doc_model.to_dict().get("fitness")
+
+                parameters = base64.b64decode(parameters)
+                parameters = pickle.loads(parameters)
+                self.set_weights(model, parameters)
+                
+    def get_highest_fitness(self):
+        query = db.collection("fittest").order_by("fitness", direction=firestore.Query.DESCENDING).limit(1)
+        results = query.stream()
+        for doc in results:
+            print(f"Document ID: {doc.id}")
+            print(f"Highest fitness value: {doc.get('fitness')}")
                 
 if __name__ == '__main__':
     agent = Agent()

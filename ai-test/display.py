@@ -2,6 +2,9 @@ import pygame
 import random
 import time
 
+import torch
+import torch.nn as nn
+
 class Direction:
     def __init__(self, direction, distance, has_apple, has_snake):
         self.direction = direction
@@ -9,7 +12,7 @@ class Direction:
         self.has_apple = has_apple
         self.has_snake = has_snake
 
-class SnakeGame:
+class SnakeDisplay:
     def __init__(self):
         # Define some colors
         self.BOARDCOLOR = (21, 21, 21)
@@ -29,10 +32,10 @@ class SnakeGame:
         self.grid_cell_height = self.segment_height + self.segment_margin
 
         # Set the size of the game board
-        self.board_width = 10
-        self.board_height = 10
+        self.board_width = 25
+        self.board_height = 25
 
-        # universial position
+        # universial positions
         possible_positions = [(x, y) for x in range(self.board_width - 1) for y in range(self.board_height - 1)]
         snake_head_pos = random.choice(possible_positions)
         snake_directions = None
@@ -72,7 +75,7 @@ class SnakeGame:
         pygame.init()
 
         # Set the size of the game window
-        self.window_size = [self.board_width * self.grid_cell_width, self.board_height * self.grid_cell_height]
+        self.window_size = [self.board_width * self.grid_cell_width * 5.25, self.board_height * self.grid_cell_height * 3.5]
         self.screen = pygame.display.set_mode(self.window_size)
 
         # Set the caption of the game window
@@ -88,7 +91,7 @@ class SnakeGame:
         self.hunger = 300
         self.steps = 0
 
-        self.fps = 200
+        self.fps = 300
 
         # Set the initial state
 
@@ -99,8 +102,8 @@ class SnakeGame:
     def get_values(self):
         return self.board_width, self.board_height, self.game_over, self.has_pressed, self.score, self.steps
     
-    def get_values_visualization(self):
-        return self.screen, self.board_width, self.segment_height
+    def get_screen(self):
+        return self.screen
     
     def clear_direction_inputs(self):
         self.direction_inputs = []
@@ -109,7 +112,7 @@ class SnakeGame:
         self.screen.fill(self.BOARDCOLOR)
 
     def update_screen(self):
-        pygame.display.update()
+        pygame.display.flip()
 
     def set_clock(self):
         self.clock.tick(self.fps)
@@ -226,7 +229,7 @@ class SnakeGame:
     def display_score(self):
         font = pygame.font.Font(None, 36)
         score_text = font.render("Score: " + str(self.score), True, self.SCORECOLOR)
-        self.screen.blit(score_text, [0, 0])
+        self.screen.blit(score_text, [500, 0])
 
     def draw_distances(self):
         # Define the directions
@@ -319,6 +322,90 @@ class SnakeGame:
         }.get(self.tail_direction, "Invalid case")
 
         return direction, snake_direction, tail_direction
+    
+    def draw_neural_network_visualization(self, net, x_offset, y_offset, layer_colors, input_activations, activations=[], neuron_radius=10, layer_spacing=175, neuron_spacing=45):
+        def draw_neuron(x, y, color, activation):
+            activation = max(0, min(1, activation))
+            neuron_color = (
+                int(color[0] * activation) + (21 if activation == 0 else 0),
+                int(color[1] * activation) + (21 if activation == 0 else 0),
+                int(color[2] * activation) + (21 if activation == 0 else 0),
+            )
+            pygame.draw.circle(self.screen, (255, 255, 255), (x, y), neuron_radius + 1)
+            pygame.draw.circle(self.screen, neuron_color, (x, y), neuron_radius)
+
+        def draw_weight_line(x1, y1, x2, y2, weight):
+            normalized_weight = abs(weight) / 2
+            color_intensity = int(normalized_weight * 255)
+            color_intensity = max(0, min(255, color_intensity))
+            color = (color_intensity, color_intensity, color_intensity)
+
+            pygame.draw.line(self.screen, color, (x1, y1), (x2, y2), 1)
+
+        y = y_offset
+        layers = [net.fc1, net.fc2, net.fc3]
+        input_layer = nn.Linear(32, layers[0].in_features)
+        layers.insert(0, input_layer)
+
+        # Draw the weight lines first
+        for idx, layer in enumerate(layers):
+            weights = layer.weight.data if idx > 0 else None
+            biases = layer.bias.data if idx > 0 else None
+
+            num_neurons = layer.out_features if idx > 0 else layer.in_features
+            total_width = (num_neurons - 1) * neuron_spacing
+            layer_center_offset = total_width / 2
+
+            x_positions = [(x_offset + i * neuron_spacing - layer_center_offset) for i in range(num_neurons)]
+
+            if idx > 0:
+                prev_x_positions = [(x_offset + i * neuron_spacing - (layers[idx - 1].out_features - 1) * neuron_spacing / 2) for i in range(layers[idx - 1].out_features)]
+
+                for i, current_x in enumerate(x_positions):
+                    for j, prev_x in enumerate(prev_x_positions):
+                        weight = weights[j % len(weights)][i]
+                        draw_weight_line(prev_x, y - layer_spacing, current_x, y, weight)
+            elif idx == 0:
+                next_x_positions = [(x_offset + i * neuron_spacing - (layers[idx + 1].out_features - 1) * neuron_spacing / 2) for i in range(layers[idx + 1].out_features)]
+
+                # Create a dummy weight matrix for the connections between the input layer and the first hidden layer
+                num_input_neurons = len(x_positions)
+                num_next_neurons = len(next_x_positions)
+                dummy_weights = torch.ones(num_next_neurons, num_input_neurons)
+
+                for i, row in enumerate(dummy_weights):
+                    for j, weight in enumerate(row):
+                        draw_weight_line(x_positions[j], y, next_x_positions[i], y + layer_spacing, weight)
+
+            y += layer_spacing
+
+        # Draw the neurons on top of the weight lines
+        y = y_offset
+        for idx, layer in enumerate(layers):
+            num_neurons = layer.out_features if idx > 0 else layer.in_features
+            total_width = (num_neurons - 1) * neuron_spacing
+            layer_center_offset = total_width / 2
+            x_positions = [(x_offset + i * neuron_spacing - layer_center_offset) for i in range(num_neurons)]
+            for i in range(num_neurons):
+                layer_color = layer_colors[idx]
+                if idx == 0:
+                    activation = input_activations[i]
+                else:
+                    activation = activations[idx - 1][i] if idx - 1 < len(activations) and i < len(activations[idx - 1]) else 0.0
+
+                draw_neuron(x_positions[i], y, layer_color, activation)
+
+            y += layer_spacing
+            
+    def display_generation(self, generation):
+        font = pygame.font.Font(None, 36)
+        generation_text = font.render("Generation: " + str(generation), True, (255, 255, 255))
+        self.screen.blit(generation_text, [750, 0])
+        
+    def display_fitness(self, fitness):
+        font = pygame.font.Font(None, 36)
+        fitness_text = font.render("Fitness: " + str(fitness), True, (255, 255, 255))
+        self.screen.blit(fitness_text, [1000, 0])
 
     def reset(self):
         # universial positions
