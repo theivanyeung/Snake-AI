@@ -48,7 +48,7 @@ _Snake AI is still in training phase. [`parameters.txt`](ai-test/parameters.txt)
 
 ```
 Genetic Algorithm
- - 500 models per generation
+ - 1000 models per generation
  - 20 models are choosen randomly each generation for repopulating
    (Those with higher fitness scores have higher chances)
  - 50/50 Simulated binary crossover, Single-point binary crossover
