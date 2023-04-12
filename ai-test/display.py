@@ -340,7 +340,7 @@ class SnakeDisplay:
             color_intensity = max(0, min(255, color_intensity))
             color = (color_intensity, color_intensity, color_intensity)
 
-            pygame.draw.line(self.screen, color, (x1, y1), (x2, y2), 1)
+            pygame.draw.line(self.screen, color, (x1, y1), (x2, y2), 2)
 
         y = y_offset
         layers = [net.fc1, net.fc2, net.fc3]
