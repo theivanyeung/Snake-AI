@@ -11,6 +11,8 @@ import random
 
 import pygame
 
+import matplotlib.pyplot as plt
+
 import firebase_admin
 from firebase_admin import credentials, firestore
 
@@ -156,7 +158,7 @@ class Agent:
     def get_models(self):
         models = []
         
-        for i in range(1830):
+        for i in range(76):
             doc_model = db.collection("fittest").document("GENERATION" + str(i)).get().to_dict()
             models.append({"parameters": doc_model["parameters"], "fitness": doc_model["fitness"]})
             
@@ -170,7 +172,8 @@ class Agent:
         
         count = None
         fitness = None
-        start = [[0, 75], [100, 150], [295, 345], [804, 854], [1554, 1604], [1779, 1829]]
+        # start = [[0, 75], [100, 150], [295, 345], [804, 854], [1554, 1604], [1779, 1829]]
+        start = [[0, 75]]
         models = self.get_models()
         
         parameters = models[0]["parameters"]
@@ -262,7 +265,34 @@ class Agent:
         for doc in results:
             print(f"Document ID: {doc.id}")
             print(f"Highest fitness value: {doc.get('fitness')}")
+            
+    def plot_graph(self, endValue):
+        coordinates = []
+        
+        for i in range(endValue):
+            doc_model = db.collection("fittest").document("GENERATION" + str(i)).get().to_dict()
+            coordinates.append([i, doc_model["fitness"]])
+            
+        x_values = [coord[0] for coord in coordinates]
+        y_values = [coord[1] for coord in coordinates]
+        
+        plt.scatter(x_values, y_values, c='#00F0FF', edgecolors='black', linewidths=0.1, s=2)
+        
+        plt.gca().set_facecolor('#151515')
+        plt.gcf().set_facecolor('#151515')
+        
+        plt.tick_params(colors='white', direction='out', length=6, width=2)
+        plt.gca().spines['bottom'].set_color('white')
+        plt.gca().spines['top'].set_color('white')
+        plt.gca().spines['right'].set_color('white')
+        plt.gca().spines['left'].set_color('white')
+
+        plt.xlabel('Generation', color='white')
+        plt.ylabel('Fitness value', color='white')
+        plt.title('NN Performance (Generation 0 - 1829)', color='white')
+
+        plt.show()
                 
 if __name__ == '__main__':
     agent = Agent()
-    agent.run_display()
+    agent.run_simulation()

@@ -29,8 +29,8 @@ class SnakeGame:
         self.grid_cell_height = self.segment_height + self.segment_margin
 
         # Set the size of the game board
-        self.board_width = 10
-        self.board_height = 10
+        self.board_width = 75
+        self.board_height = 75
 
         # universial position
         possible_positions = [(x, y) for x in range(self.board_width - 1) for y in range(self.board_height - 1)]
@@ -89,7 +89,7 @@ class SnakeGame:
         self.steps = 0
 
         self.fps = 200
-
+        
         # Set the initial state
 
         self.direction_inputs = []
