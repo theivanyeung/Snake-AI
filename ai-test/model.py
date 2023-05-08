@@ -260,7 +260,7 @@ class Agent:
                     self.set_weights(model, parameters)
                 
     def get_highest_fitness(self):
-        query = db.collection("fittest").order_by("fitness", direction=firestore.Query.DESCENDING).limit(1)
+        query = db.collection("fittest").order_by("fitness", direction=firestore.Query.DESCENDING).limit(5)
         results = query.stream()
         for doc in results:
             print(f"Document ID: {doc.id}")
@@ -295,4 +295,4 @@ class Agent:
                 
 if __name__ == '__main__':
     agent = Agent()
-    agent.run_simulation()
+    agent.get_highest_fitness()
