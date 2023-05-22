@@ -295,4 +295,4 @@ class Agent:
                 
 if __name__ == '__main__':
     agent = Agent()
-    agent.get_highest_fitness()
+    agent.run_simulation()
